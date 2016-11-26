@@ -9,7 +9,6 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
-
 class AuthController extends BaseController
 {
     /**
@@ -20,7 +19,6 @@ class AuthController extends BaseController
     public function __construct()
     {
         parent::__construct();
-
     }
 
     /**
@@ -32,7 +30,7 @@ class AuthController extends BaseController
         $code = $request->get('code');
         $openid = new LoginController();
         $openid = $openid->info($code);
-        $user = wechat::where("openid","=",$openid)->first();
+        $user = wechat::where("openid", "=", $openid)->first();
         // if ($user == null) {
         //   return "没有";
         // }
@@ -41,13 +39,13 @@ class AuthController extends BaseController
         // }
         // $user = wechat::find(1);
         // $user = $user[0];
-        if (!$user){
-          $arr = array ('status'=>"NO USER");
-          return response()->json(compact('arr'));
+        if (!$user) {
+            $arr = array ('status'=>"NO USER");
+            return response()->json(compact('arr'));
         }
         $user['now'] = time();
         $user['secret'] = "wearevtmers";
-        $user['random'] = rand(1000000,10000000);
+        $user['random'] = rand(1000000, 10000000);
         // return $user;
         $token = JWTAuth::fromUser($user);
         return response()->json(compact('token'));
@@ -68,7 +66,8 @@ class AuthController extends BaseController
         return $token;
     }  */
 
-    public function logout(){
+    public function logout()
+    {
       // $token = $request->get('token');
         JWTAuth::refresh();
         $arr = array ('LOG OUT'=>"SUCCESSED");
@@ -78,5 +77,4 @@ class AuthController extends BaseController
      * 获取用户的信息
      * @return \Illuminate\Http\JsonResponse
      */
-
 }
