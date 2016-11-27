@@ -13,3 +13,7 @@
 Route::get('/wechat', 'LoginController@index');
 Route::get('/info', 'LoginController@info');
 Route::get('/test', 'LoginController@test');
+Route::get('/user/test', function () {
+    return view('datatest');
+});
+Route::post('/user/test', 'UserPostController@orderSave');
