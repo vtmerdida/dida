@@ -1,40 +1,59 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Api\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Requests;
 
-class UserPostController extends Controller
+class UserPostController extends BaseController
 {
+
     /**
     *文件名(UserPostController.php)
     *
     *根据乘客当前经纬度返回附近可用车的数量
     *
-    *@param user_position
+    *@param $request
     */
+
     public function carNum(Request $request)
     {
+        //获得乘客经纬度
         $position = $request->get('position');
+        //以逗号拆分经纬度，存为一个数组，0为经度，1为纬度
         $p_data = explode(",", $position);
-        $drivers = Redis::sinter('userphone');
-        dd($drivers);
+        //查询司机手机号码，作为查询司机位置的遍历依据
+        $drivers = Redis::sinter('driverphone');
+        $num = 0;//车辆统计个数num
+        foreach ($drivers as $driver) {
+            //
+            $d_position = Redis::hget('driverphone'.$driver, 'position');
+            $d_data = explode(",", $d_position);
+            $betweenX = $p_data['0']-$d_data['0'];
+            $betweenY = $p_data['1']-$d_data['1'];
+
+            /***满足经纬度加减0.02(实际距离为2.2公里)的范围的车辆则算入统计***/
+            if (abs($betweenX)<=0.02&&abs($betweenY)<=0.02) {
+                $num = $num+1;
+            }
+        }
+        return $num;
     }
 
     /**
     *根据乘客端输入的乘客人数、路程距离、车型估价(目前只根据路程)
     *
-    *@param Request $request
+    *@param $request
     */
-    public function prize(Request $reuqest)
+
+    public function price(Request $request)
     {
-        $distacnce = $request->get('distacnce');
-        if ($distacnce<=5) {
+        $distance = $request->get('distance');
+        if ($distance<=5) {
                 return 5;
         } else {
-            $p = 5+0.05*($distacnce-5);
+            $p = 5+0.5*($distance-5);
             return $p;
         }
     }
@@ -46,6 +65,7 @@ class UserPostController extends Controller
     *
     *@param Request $request
     */
+
     public function orderSave(Request $request)
     {
         $redis = Redis::connection();
