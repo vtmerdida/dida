@@ -5,6 +5,7 @@ namespace App\Api\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Requests;
+use App\Http\Requests\PostRequest;
 
 class UserPostController extends BaseController
 {
@@ -66,9 +67,9 @@ class UserPostController extends BaseController
     *@param Request $request
     */
 
-    public function orderSave(Request $request)
+    public function orderSave(PostRequest $request)
     {
-        $redis = Redis::connection();
+       
         //获得用户手机号码
         $userphone = $request->get('userphone');
         //存入userphone集合
@@ -78,33 +79,34 @@ class UserPostController extends BaseController
          // $value = Redis::command('sinter', ['userphone']);
          // dd($value);
         //获得出发地名称
-        $fromname = $request->get('fromname');
+        $from = $request->get('from');
         //获得出发地经纬度
-        $fromgeog = $request->get('fromgeog');
+        $fromPosition = $request->get('fromPosition');
         //获得目的地名称
         $destination = $request->get('destination');
         //获得目的地经纬度
-        $destination_positon = $request->get('destination_positon');
+        $destinationPositon = $request->get('destinationPositon');
         //获得乘客人数
-        $num = $request->get('num');
+        $passengerNum = $request->get('passengerNum');
         //获得车类型
-        $cartype = $request->get('cartype');
-        $isAccept = 0;
+        $motoType = $request->get('motoType');
         
+        $isAccept = 0;
+
         $query = Redis::hmset(
             'usecar:'.$userphone,
-            ['fromname',
-            $fromname,
-            'fromgeog',
-            $fromgeog,
+            ['from',
+            $from,
+            'fromPosition',
+            $fromPosition,
             'destination',
             $destination,
-            'destination_positon',
-            $destination_positon,
-            'num',
-            $num,
-            'cartype',
-            $cartype,
+            'destinationPositon',
+            $destinationPositon,
+            'passengerNum',
+            $passengerNum,
+            'motoType',
+            $motoType,
             'isAccept',
             $isAccept
             ]
